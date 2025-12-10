@@ -2,20 +2,57 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://thunkable.github.io/webviewer-extension/thunkableWebviewerExtension.js" type="text/javascript"></script>
+    <style>
+      /* 讓輸入框隱藏，但仍可被選取 */
+      #clipboard-input {
+        position: absolute;
+        left: -9999px;
+      }
+    </style>
   </head>
   <body>
-  <script type="text/javascript">
- function copyToClipboard(value) {
-  var tempInput = document.createElement("textarea");
-  tempInput.value = value;
-  document.body.appendChild(tempInput);
-  tempInput.select();
-  document.execCommand("copy");
-  document.body.removeChild(tempInput);
-} 
+    <textarea id="clipboard-input"></textarea>
 
-ThunkableWebviewerExtension.receiveMessage(function(message) {
-copyToClipboard(message)
-});
-  </script>
+    <button id="copy-button">點此複製文字</button>
+
+    <p id="status"></p>
+
+    <script type="text/javascript">
+      const inputField = document.getElementById("clipboard-input");
+      const copyButton = document.getElementById("copy-button");
+      const statusText = document.getElementById("status");
+      let textToCopy = "尚未收到內容"; // 預設值
+
+      // --- 核心複製函數 (必須在點擊事件中同步執行) ---
+      function copyText() {
+        if (textToCopy) {
+          // 步驟 1: 將要複製的文字設定給隱藏輸入框
+          inputField.value = textToCopy;
+          
+          // 步驟 2: 選取輸入框的內容
+          inputField.select(); 
+          inputField.setSelectionRange(0, 99999); // 適用於手機瀏覽器
+          
+          // 步驟 3: 執行複製指令 (這是必須同步發生的動作)
+          try {
+            document.execCommand("copy");
+            statusText.textContent = "已成功複製！內容：" + textToCopy;
+          } catch (err) {
+            statusText.textContent = "複製失敗，請手動複製。";
+            console.error('Copy failed: ', err);
+          }
+        }
+      }
+
+      // --- 點擊按鈕，觸發複製函數 ---
+      copyButton.addEventListener('click', copyText);
+
+      // --- 接收來自 Thunkable App 的訊息 ---
+      ThunkableWebviewerExtension.receiveMessage(function(message) {
+        // App 傳送內容過來時，只負責更新要複製的變數
+        textToCopy = message; 
+        statusText.textContent = "已從 App 收到內容：”" + message + "” (請點上方按鈕)";
+      });
+    </script>
+  </body>
 </html>
