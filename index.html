@@ -8,6 +8,15 @@
         position: absolute;
         left: -9999px;
       }
+      #copy-button {
+        background-color: blue; /* 背景顏色藍色 */
+        color: white; /* 文字顏色白色 */
+        height: 20px; /* 高度設置為20px */
+        width: 150px; /* 設置按鈕寬度為150px */
+        border: none; /* 去掉邊框 */
+        border-radius: 5px; /* 添加圓角效果 */
+        cursor: pointer; /* 鼠標懸停時顯示為點擊狀態 */
+      }
     </style>
   </head>
   <body>
@@ -21,7 +30,7 @@
       const inputField = document.getElementById("clipboard-input");
       const copyButton = document.getElementById("copy-button");
       const statusText = document.getElementById("status");
-      let textToCopy = "尚未收到內容"; // 預設值
+      let textToCopy = ""; // 預設值
 
       // --- 核心複製函數 (必須在點擊事件中同步執行) ---
       function copyText() {
@@ -36,9 +45,9 @@
           // 步驟 3: 執行複製指令 (這是必須同步發生的動作)
           try {
             document.execCommand("copy");
-            statusText.textContent = "已成功複製！內容：" + textToCopy;
+            statusText.textContent = "" ;
           } catch (err) {
-            statusText.textContent = "複製失敗，請手動複製。";
+            statusText.textContent = "";
             console.error('Copy failed: ', err);
           }
         }
@@ -51,7 +60,7 @@
       ThunkableWebviewerExtension.receiveMessage(function(message) {
         // App 傳送內容過來時，只負責更新要複製的變數
         textToCopy = message; 
-        statusText.textContent = "已從 App 收到內容：”" + message + "” (請點上方按鈕)";
+        statusText.textContent = "";
       });
     </script>
   </body>
