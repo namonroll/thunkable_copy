@@ -30,36 +30,33 @@
       const inputField = document.getElementById("clipboard-input");
       const copyButton = document.getElementById("copy-button");
       const statusText = document.getElementById("status");
-      let textToCopy = ""; // 預設值
-
-      // --- 核心複製函數 (必須在點擊事件中同步執行) ---
+      let textToCopy = ""; 
+    
       function copyText() {
         if (textToCopy) {
-          // 步驟 1: 將要複製的文字設定給隱藏輸入框
           inputField.value = textToCopy;
-          
-          // 步驟 2: 選取輸入框的內容
           inputField.select(); 
-          inputField.setSelectionRange(0, 99999); // 適用於手機瀏覽器
+          inputField.setSelectionRange(0, 99999); 
           
-          // 步驟 3: 執行複製指令 (這是必須同步發生的動作)
           try {
             document.execCommand("copy");
-            statusText.textContent = "" ;
+            statusText.textContent = "Copied!"; // 建議加上提示讓使用者知道成功了
           } catch (err) {
-            statusText.textContent = "";
+            statusText.textContent = "Error";
             console.error('Copy failed: ', err);
           }
         }
       }
-
-      // --- 點擊按鈕，觸發複製函數 ---
+    
       copyButton.addEventListener('click', copyText);
-
-      // --- 接收來自 Thunkable App 的訊息 ---
+    
+      // --- 修改重點在此 ---
       ThunkableWebviewerExtension.receiveMessage(function(message) {
-        // App 傳送內容過來時，只負責更新要複製的變數
-        textToCopy = message; 
+        if (message) {
+          // 使用正規表達式將字面上的 \n 替換成真正的換行符
+          // /\\n/g 代表尋找所有的「反斜線+n」
+          textToCopy = message.replace(/\\n/g, '\n'); 
+        }
         statusText.textContent = "";
       });
     </script>
