@@ -47,7 +47,7 @@
     
         try {
           const successful = document.execCommand("copy");
-          statusText.textContent = successful ? "已成功複製到剪貼簿" : "複製失敗";
+          statusText.textContent = successful ? "" : "";
         } catch (err) {
           statusText.textContent = "瀏覽器不支援複製功能";
         }
@@ -62,7 +62,7 @@
           // 使用 split + join 是最安全的方法，不會被正則表達式的特殊符號干擾
           textToCopy = message.split('\\n').join('\n');
           
-          statusText.textContent = "內容已就緒";
+          statusText.textContent = "";
         }
       });
     </script>
