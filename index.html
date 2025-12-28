@@ -30,34 +30,40 @@
       const inputField = document.getElementById("clipboard-input");
       const copyButton = document.getElementById("copy-button");
       const statusText = document.getElementById("status");
-      let textToCopy = ""; 
+      let textToCopy = "";
     
       function copyText() {
-        if (textToCopy) {
-          inputField.value = textToCopy;
-          inputField.select(); 
-          inputField.setSelectionRange(0, 99999); 
-          
-          try {
-            document.execCommand("copy");
-            statusText.textContent = "Copied!"; // 建議加上提示讓使用者知道成功了
-          } catch (err) {
-            statusText.textContent = "Error";
-            console.error('Copy failed: ', err);
-          }
+        if (!textToCopy) {
+          statusText.textContent = "尚未接收到文字";
+          return;
+        }
+    
+        // 將處理好的換行文字放入隱藏的 textarea
+        inputField.value = textToCopy;
+        
+        // 選取並執行複製
+        inputField.select();
+        inputField.setSelectionRange(0, 99999); // 確保手機端也能全選
+    
+        try {
+          const successful = document.execCommand("copy");
+          statusText.textContent = successful ? "已成功複製到剪貼簿" : "複製失敗";
+        } catch (err) {
+          statusText.textContent = "瀏覽器不支援複製功能";
         }
       }
     
       copyButton.addEventListener('click', copyText);
     
-      // --- 修改重點在此 ---
+      // --- 關鍵修正：處理傳入的字串 ---
       ThunkableWebviewerExtension.receiveMessage(function(message) {
         if (message) {
-          // 使用正規表達式將字面上的 \n 替換成真正的換行符
-          // /\\n/g 代表尋找所有的「反斜線+n」
-          textToCopy = message.replace(/\\n/g, '\n'); 
+          // 步驟：先將字串中的 "\\n" (字面上的文字) 替換成 "\n" (真正的換行符號)
+          // 使用 split + join 是最安全的方法，不會被正則表達式的特殊符號干擾
+          textToCopy = message.split('\\n').join('\n');
+          
+          statusText.textContent = "內容已就緒";
         }
-        statusText.textContent = "";
       });
     </script>
   </body>
